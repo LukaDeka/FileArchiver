@@ -1,0 +1,10 @@
+CC = clang
+CFLAGS = -g -O3 -Wall -Wextra -pedantic
+ASAN = -fsanitize=address
+# $(ASAN) -gdwarf-4
+
+# compile each .c file to object files
+: foreach src/*.c |> $(CC) %f -o %o -c $(CFLAGS) |> obj/%B.o
+
+# link each object file with functions.o
+: obj/*.o |> $(CC) %f -o %o -lm |> bin/main
