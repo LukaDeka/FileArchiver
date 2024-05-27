@@ -148,6 +148,11 @@ void decode(char* in_file) {
     FUNCTIONS FOR WRITING/READING HUFFMAN TREE FROM FILE
 */
 
+/*
+    write a Huffman tree to file:
+    write 1 if the node is a leaf, followed by the character of the leaf
+    write 0 if the node is an internal node, recursively call left and right nodes
+*/
 void write_tree_recursive(FILE* out, Node* curr, uint8_t* byte, int* bit_i) {
     if (curr->is_leaf) { // write 1 bit and character of node
         write_bit(out, byte, bit_i, 1);
@@ -161,13 +166,11 @@ void write_tree_recursive(FILE* out, Node* curr, uint8_t* byte, int* bit_i) {
     }
 }
 
-// write a Huffman tree to file
-void write_tree(FILE* out, Node* head) {
-    uint8_t byte = 0;
-    int bit_i = 7;
-    write_tree_recursive(out, head, &byte, &bit_i);
-}
-
+/*
+    read a Huffman tree from file:
+    read a bit, if 1, read a byte and return a new leaf node
+    if 0, read two new nodes recursively and return a new internal node
+*/
 Node* read_tree_recusive(FILE* in, uint8_t* byte, int* bit_i) {
     bool is_leaf = read_bit(in, byte, bit_i);
 
