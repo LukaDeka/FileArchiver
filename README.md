@@ -17,36 +17,35 @@ $ tup
 ```
 or using `make`:
 ```bash
-$ make all
+$ make main
 ```
 
 ## Usage
-The `main` program supports the following modes:
+The `main` program auto-detects if you want to compress or decompress. It also supports the following flags:
+- `-o, --output` -> Specify output filename
+- `-i, --info` -> Prints compression ratio
+- `-h, --help` -> Displays usage info
 
-### Encoding
+### Examples
 To encode a file, run:
 ```bash
-$ ./bin/main [filename]
+$ ./main files/bird.bmp -o archive.huff -i
 ```
-*or*
-```bash
-$ ./bin/main [filename] [filename].huff
+Output:
+```
+Original filesize is: 7.71MB
+Endoded filesize is:  2.22MB
+Compression ratio:    28.9%
 ```
 
 ### Decoding
-To decode a `.huff` file, run:
+Similarly, to decode a `.huff` file, run:
 ```bash
-$ ./bin/main [filename].huff
-```
-
-### Demo
-To encode a file and display information about the compression ratio, run:
-```bash
-$ ./bin/main [filename] demo
+$ ./main archive.huff
 ```
 
 ## File Structure
-- `main.c` -> Command-line argument handling.<br>
+- `main.c` -> Command-line argument and error handling.<br>
 - `IO.c` -> Encoding and decoding files, reading and writing Huffman trees, etc.<br>
 - `huffman.c` -> Functions for creating Huffman trees.<br>
 - `heap.c` -> Utility functions for creating and manipulating heaps.<br>

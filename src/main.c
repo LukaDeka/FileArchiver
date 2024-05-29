@@ -15,10 +15,10 @@ size_t get_filesize(char* filename) {
 
 void assert_file(char* filename) {
     if (access(filename, F_OK) != 0) {
-        fprintf(stderr, RED "Input file doesn't exist!\n" RESET);
+        fprintf(stderr, RED "Error: Input file doesn't exist!\n" RESET);
         exit(1);
     } else if (access(filename, R_OK) != 0) {
-        fprintf(stderr, RED "No reading permissions for input file!\n" RESET);
+        fprintf(stderr, RED "Error: No reading permissions for input file!\n" RESET);
         exit(1);
     }
 }
@@ -55,8 +55,16 @@ Flags* check_flags(int argc, char** argv) {
 
         } else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
 
-            printf("Usage:\n\
-                    Something here...\n");
+            printf(BOLD "\nUsage:\n" RESET);
+            printf("\tProvide a file you want to compress/decompress like so:\n");
+            printf(GREEN "\t./main [input] [flags]\n" RESET);
+            printf(BOLD "Optional flags:\n" RESET);
+            printf("\t-o, --output: Output filename.\n");
+            printf("\t-i, --info:   Show compression info.\n");
+            printf("\t-h, --help:   Print this message.\n");
+            printf(BOLD "Notes:\n" RESET);
+            printf("\tProgram encodes/decodes based on the filename.\n");
+            printf("\t-o and -i cannot be used when decompressing.\n");
             exit(0);
 
         } else if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--info")) {
@@ -80,7 +88,7 @@ Flags* check_flags(int argc, char** argv) {
     }
 
     if (flags->encode && flags->decode) {
-        fprintf(stderr, RED "CRITICAL ERROR: Cannot encode and decode at the same time!\n" RESET);
+        fprintf(stderr, RED "Parsing error: Please check the arguments again.\n" RESET);
         exit(1);
     }
 
@@ -119,7 +127,7 @@ Flags* check_flags(int argc, char** argv) {
 */
 int main(int argc, char* argv[]) {
     if (argc == 1) {
-        fprintf(stderr, RED "Please provide a filename.\n" RESET);
+        fprintf(stderr, RED "Error: Please provide a filename.\n" RESET);
         return 1;
     }
 
