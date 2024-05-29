@@ -6,5 +6,5 @@ ASAN = -fsanitize=address
 # compile each .c file to object files
 : foreach src/*.c |> $(CC) %f -o %o -c $(CFLAGS) |> obj/%B.o
 
-# link each object file with functions.o
-: obj/*.o |> $(CC) %f -o %o -lm |> bin/main
+# link each object file and create main
+: obj/*.o |> $(CC) %f -o %o -lm |> main

@@ -1,6 +1,5 @@
 SRC_DIR := src
 OBJ_DIR := obj
-BIN_DIR := bin
 
 SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
@@ -18,18 +17,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $@
 
-# ensure bin/ directory exists
-$(BIN_DIR):
-	mkdir -p $@
-
 # link object files to create the binary in bin/
-$(BIN_DIR)/main: $(OBJ_FILES) | $(BIN_DIR)
+main: $(OBJ_FILES)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 .PHONY: all clean
 
-# default target
-all: $(BIN_DIR)/main
-
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -rf $(OBJ_DIR) ./main
