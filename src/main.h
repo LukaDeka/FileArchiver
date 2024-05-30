@@ -2,7 +2,6 @@
 #define MAIN_H
 
 #include <stdint.h>
-#include <string.h>
 #include <stdbool.h>
 
 #define BOLD  "\033[1m"
@@ -18,8 +17,6 @@ typedef struct {
     uint16_t encode   : 1;
     uint16_t decode   : 1;
 } Flags;
-
-size_t get_filesize(char* filename);
 
 void assert_file(char* filename);
 

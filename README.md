@@ -1,13 +1,16 @@
-# Huffman Coding Project
-This project is an implementation of the Huffman coding algorithm for file compression and decompression. It is written completely in `C`, without any external libraries.
+# File Archiver using Huffman coding
+This file archiver implements the lossless Huffman Coding algorithm, used widely by `WinRar`, `7zip`, `LZMA` etc., for file compression/decompression. It is written completely in `C`, without any external libraries.
 
 ## Format
+Multi-level compression is used, so the file may be encoded multiple times for optimal filesize.
+
 The information in the encoded `.huff` file is saved in this order:
-1) The null-terminated filename
-2) One byte buffer for the amount of padding bits (filled at the end)
-3) The Huffman tree, using precisely `2559` bits every time
-4) The information, encoding using said Huffman tree
-> Note: 256 leaf nodes, each corresponding an ASCII-char, are always encoded<br>
+1) The null-terminated filename (only for the first encoding level);
+2) One byte buffer for the amount of padding bits (filled at the end);
+3) The Huffman tree, using precisely `2559` bits every time;
+4) The information, encoding using said Huffman tree.
+
+> Note: 256 leaf nodes, each corresponding an ASCII-char, are always encoded.<br>
 > `2559` bits = `(8+1) * 256 + 255`
 
 ## Building
@@ -34,8 +37,8 @@ $ ./main files/bird.bmp -o archive.huff -i
 Output:
 ```
 Original filesize is: 7.71MB
-Endoded filesize is:  2.22MB
-Compression ratio:    28.9%
+Endoded filesize is:  1.60MB
+Compression ratio:    20.8%
 ```
 
 ### Decoding

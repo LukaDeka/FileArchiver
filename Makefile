@@ -24,4 +24,5 @@ main: $(OBJ_FILES)
 .PHONY: all clean
 
 clean:
-	rm -rf $(OBJ_DIR) ./main
+	rm -rf $(OBJ_DIR)
+	rm -f main *.txt *.bmp *.data *.huff *.zip

@@ -7,6 +7,14 @@
 #include "heap.h"
 #include "huffman.h"
 
+size_t get_filesize(char* path) {
+    FILE* fp = fopen(path, "rb");
+    fseek(fp, 0, SEEK_END);
+    size_t filesize = ftell(fp);
+    fclose(fp);
+    return filesize;
+}
+
 void flush_byte(FILE* out, Byte* byte) {
     fwrite(&byte->buffer, sizeof(uint8_t), 1, out);
     byte->buffer = 0;
@@ -60,16 +68,20 @@ int decode_char(FILE* in, Node* curr, Byte* byte) {
 }
 
 // main function for encoding files
-void encode(char* in_file, char* out_file) {
-    FILE* in  = fopen(in_file,  "rb");
-    FILE* out = fopen(out_file, "wb");
+void encode(char* in_filename, char* out_filename) {
+    FILE* in  = fopen(in_filename,  "rb");
+    FILE* out = fopen(out_filename, "wb");
 
-    // write filename
-    char* temp_in_file = strdup(in_file);
-    char* in_basename = basename(temp_in_file);
-    size_t filename_len = strlen(in_basename) + 1;
-    fwrite(in_basename, sizeof(char), filename_len, out);
-    free(temp_in_file);
+    // remove path from filename    
+    size_t filename_len = 0;
+    if (strcmp(out_filename, TEMP_FILENAME)) {
+        char* temp_in_filename = strdup(in_filename);
+        char* in_basename = basename(temp_in_filename);
+        filename_len = strlen(in_basename);
+        fwrite(in_basename, sizeof(char), filename_len, out);
+        free(temp_in_filename);
+    }
+    fputc(0, out);
 
     // one byte buffer for storing the amount of padding bits
     fputc(0, out);
@@ -96,34 +108,50 @@ void encode(char* in_file, char* out_file) {
     free_codes(codes);
 
     // rewind after "filename" and write the amount of padding bits
-    fseek(out, filename_len, SEEK_SET);
+    fseek(out, filename_len + 1, SEEK_SET);
     byte.padding_bits = (byte.bit_i + 1) % 8;
     fputc(byte.padding_bits, out);
 
     fclose(in);
     fclose(out);
 
-    // TODO: save encoded file,
-    // recursively encode file AGAIN until >= current
-    // recover current
-    // delete all other versions
-    // text.txt -> .huff -> .huff...
-    // rename file to out_file
+    // base case for multi-level encoding
+    if (filename_len == 0) { return; }
+
+    // recursively encode file again if desirable
+    for(;;) {
+        encode(out_filename, TEMP_FILENAME);
+
+        if (get_filesize(out_filename) <= get_filesize(TEMP_FILENAME)) {
+            remove(TEMP_FILENAME);
+            break;
+        }
+
+        remove(out_filename);
+        rename(TEMP_FILENAME, out_filename);
+    }
 }
 
-void decode(char* in_file) {
-    FILE* in  = fopen(in_file,  "rb");
+void decode(char* in_filename) {
+    FILE* in = fopen(in_filename,  "rb");
+
+    // temporary files for storing decoding levels
+    char* temp_filenames[] = { "0.tmp", "1.tmp" };
+    static uint8_t temp_i = 1;
+    temp_i = (temp_i + 1) % 2;
 
     // read filename into buffer
     char* filename_buffer = NULL;
     size_t buffer_len = 0;
     getdelim(&filename_buffer, &buffer_len, '\0', in);
 
-    Byte byte = { 0, -1, 0, false };
-    byte.padding_bits = getc(in);
+    // if first char is '\0', file has been encoded more than once
+    uint8_t is_multilevel = *filename_buffer == '\0';
+    FILE* out = fopen(is_multilevel ? temp_filenames[temp_i] : filename_buffer, "wb");
 
-    FILE* out = fopen(filename_buffer, "wb");
-    free(filename_buffer);
+    // initialize byte buffer
+    Byte byte = { 0, -1, 0, false };
+    byte.padding_bits = fgetc(in);
 
     // read Huffman tree from file
     Node* head = read_tree_recusive(in, &byte);
@@ -139,9 +167,14 @@ void decode(char* in_file) {
     fclose(in);
     fclose(out);
 
-    // TODO: if filename == .huff
-    // decode again recursively until no more
-    // delete all other files
+    if (is_multilevel) { // another level of encoding
+        decode(temp_filenames[temp_i]);
+    }
+
+    remove("0.tmp");
+    remove("1.tmp");
+
+    free(filename_buffer);
 }
 
 /*

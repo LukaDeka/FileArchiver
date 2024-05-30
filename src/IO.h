@@ -5,12 +5,16 @@
 #include <stdint.h>
 #include "heap.h"
 
+#define TEMP_FILENAME "temp.huff"
+
 typedef struct {
     uint8_t buffer;
     int     bit_i;
     uint8_t padding_bits;
     bool    is_eof;
 } Byte;
+
+size_t get_filesize(char* path);
 
 void flush_byte(FILE* out, Byte* byte);
 

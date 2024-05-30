@@ -5,14 +5,6 @@
 #include "main.h"
 #include "IO.h"
 
-size_t get_filesize(char* filename) {
-    FILE* fp = fopen(filename, "rb");
-    fseek(fp, 0, SEEK_END);
-    size_t filesize = ftell(fp);
-    fclose(fp);
-    return filesize;
-}
-
 void assert_file(char* filename) {
     if (access(filename, F_OK) != 0) {
         fprintf(stderr, RED "Error: Input file doesn't exist!\n" RESET);
@@ -94,6 +86,19 @@ Flags* check_flags(int argc, char** argv) {
     return flags;
 }
 
+void print_filesize(char* message, size_t bytes) {
+    char* units[] = { "B", "KB", "MB", "GB" };
+    if (bytes < 1024) {
+        printf("%s " BOLD " %zu%s\n" RESET, message, bytes, units[0]);
+    } else if (bytes < 1024 * 1024) {
+        printf("%s" BOLD "%.2f%s\n" RESET, message, bytes / 1024.0 , units[1]);
+    } else if (bytes < 1024 * 1024 * 1024) {
+        printf("%s" BOLD "%.2f%s\n" RESET, message, bytes / 1024.0 / 1024.0, units[2]);
+    } else {
+        printf("%s" BOLD "%.2f%s\n" RESET, message, bytes / 1024.0 / 1024.0 / 1024.0, units[3]);
+    }
+}
+
 /*
     USAGE:
         To encode:
@@ -133,15 +138,13 @@ int main(int argc, char* argv[]) {
         if (flags->info) {
             size_t original_filesize = get_filesize(in_filename);
             size_t encoded_filesize  = get_filesize(out_filename);
-            float  original_filesize_in_mb = (float) original_filesize / (1024 * 1024);
-            float  encoded_filesize_in_mb  = (float) encoded_filesize  / (1024 * 1024);
-            float  compression_ratio       = (float) encoded_filesize  / original_filesize;
+            float  compression_ratio = (float) encoded_filesize / original_filesize;
             char*  color = compression_ratio > 1.0f ? RED : GREEN;
 
             puts("");
-            printf("Original filesize is: " BOLD "%.2fMB\n" RESET, original_filesize_in_mb);
-            printf("Endoded filesize is:  " BOLD "%.2fMB\n" RESET, encoded_filesize_in_mb);
-            printf("Compression ratio:    " "%s" "%.1f%%\n" RESET, color, compression_ratio * 100);
+            print_filesize("Original filesize is: ", original_filesize);
+            print_filesize("Endoded filesize is:  ", encoded_filesize);
+            printf        ("Compression ratio:    " "%s" "%.1f%%\n" RESET, color, compression_ratio * 100);
             puts("");
         }
     } else if (flags->decode) {
