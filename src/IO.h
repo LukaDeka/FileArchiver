@@ -7,9 +7,9 @@
 
 typedef struct {
     uint8_t buffer;
-    int bit_i;
+    int     bit_i;
     uint8_t padding_bits;
-    bool is_eof;
+    bool    is_eof;
 } Byte;
 
 void flush_byte(FILE* out, Byte* byte);

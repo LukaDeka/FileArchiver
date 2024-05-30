@@ -52,9 +52,7 @@ Flags* check_flags(int argc, char** argv) {
                 flags->output = true;
                 flags->output_i = ++i;
             }
-
         } else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
-
             printf(BOLD "\nUsage:\n" RESET);
             printf("\tProvide a file you want to compress/decompress like so:\n");
             printf(GREEN "\t./main [input] [flags]\n" RESET);
@@ -66,21 +64,14 @@ Flags* check_flags(int argc, char** argv) {
             printf("\tProgram encodes/decodes based on the filename.\n");
             printf("\t-o and -i cannot be used when decompressing.\n");
             exit(0);
-
         } else if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--info")) {
-
             flags->info = true;
-
         } else if (has_huff_extension(argv[i])) {
-
             flags->decode = true;
             flags->input_i = i;
-
         } else if (!has_huff_extension(argv[i])) {
-
             flags->encode = true;
             flags->input_i = i;
-
         } else {
             fprintf(stderr, RED "Error: Invalid argument! Try --help\n" RESET);
             exit(1);
